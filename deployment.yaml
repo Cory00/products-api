@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: products
+    tier: backend
+  name: products
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: backend
+      app: products
+  template:
+    metadata:
+      labels:
+        app: products
+        tier: backend
+    spec:
+      containers:
+      - image: cory16/products-api
+        name: products-api
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 30
+          timeoutSeconds: 2
+          periodSeconds: 5
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          timeoutSeconds: 2
+          periodSeconds: 5
+          failureThreshold: 5
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+           configMapKeyRef:
+             name: postgres-config
+             key: postgres_user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+           configMapKeyRef:
+             name: postgres-config
+             key: postgres_password
+        - name: POSTGRES_HOST
+          valueFrom:
+           configMapKeyRef:
+             name: hostname-config
+             key: postgres_host
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: products-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+      app: products
+      tier: backend
+  ports:
+  - port: 8081
+    targetPort: 8080
