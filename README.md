@@ -9,7 +9,7 @@ kubectl create configmap hostname-config --from-literal=postgres_host=$(kubectl 
 
 Build image:
 
-docker build ./ -t <repo name>/<img name>
+docker build ./ -t repo name/img name
   
 Change repo name in deployment.yaml file
 
