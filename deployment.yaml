@@ -18,7 +18,7 @@ spec:
         tier: backend
     spec:
       containers:
-      - image: cory16/products-api
+      - image: <repo>/products-api
         name: products-api
         livenessProbe:
           httpGet:
